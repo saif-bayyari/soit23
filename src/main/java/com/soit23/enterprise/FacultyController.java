@@ -2,49 +2,57 @@ package com.soit23.enterprise;
 
 
 
-import com.soit23.enterprise.model.Faculty;
-import jakarta.annotation.PostConstruct;
+import com.soit23.enterprise.entity.Faculty;
+import com.soit23.enterprise.service.FacultyService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping("/Faculties")
 public class FacultyController {
 
-    //Upload Faculty Info
-    private List<Faculty> theFaculties;
+    public FacultyService facultyService;
+
+    public FacultyController(FacultyService theFacultyService){
+        facultyService = theFacultyService;
+
+
+    }
+    //Mapping for list
+
 
     @GetMapping("/list")
     public String listFaculties(Model theModel){
-        theModel.addAttribute("faculties", theFaculties);
 
-        return "list-faculties";
-    }
-    //Mapping for "/List"
-    @PostConstruct
-    private void loadData(){
-
-        //Create Faculties
-        Faculty fac1 = new Faculty(1, "Kelly", "Miller", "Assistant-Professor", "Kelly@uc.edu");
-        Faculty fac2 = new Faculty(1, "Robert", "Lee", "Instructor-Educator", "Robert@uc.edu");
-        Faculty fac3 = new Faculty(1, "Laura", "West", "Adjunct-Professor", "Laura@uc.edu");
+        List<Faculty> theFaculties = facultyService.findAll();
+        //Add Faculties to the Spring Model
+        theModel.addAttribute("faculties",theFaculties);
+        return "faculties/list-faculties";
 
 
-        //Create our List
-        theFaculties = new ArrayList<>();
-
-        theFaculties.add(fac1);
-        theFaculties.add(fac2);
-        theFaculties.add(fac3);
-
-        //Add to our List
 
     }
+    @GetMapping("/viewAddForm")
+    public String viewAddForm(Model theModel){
+
+        Faculty theFaculty = new Faculty();
+        theModel.addAttribute("faculty", theFaculty);
+        return "faculties/faculty-form";
+    }
+
+    @PostMapping("/save")
+    public String saveFaculty(@ModelAttribute("faculty") Faculty theFaculty){
+        //Register the Faculty
+        facultyService.save(theFaculty);
 
 
+        //Block duplicate submission for accidental
+        return "redirect:/Faculties/list";
+    }
 }
