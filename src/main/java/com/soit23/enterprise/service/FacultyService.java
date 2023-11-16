@@ -13,5 +13,5 @@ public interface FacultyService {
     public void save(Faculty theFaculty);
 
     public void deleteById(int theId);
-
 }
+
